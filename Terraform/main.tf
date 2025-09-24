@@ -16,11 +16,11 @@ variable "project" {
 }
 
 variable "app" {
-  default = "nginx-unpriv"
+  default = "apache-unpriv"
 }
 
 variable "image" {
-  default = "nginxinc/nginx-unprivileged:stable"
+  default = "registry.access.redhat.com/ubi8/httpd-24"
 }
 
 resource "kubernetes_namespace_v1" "ns" {
