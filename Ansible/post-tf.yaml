@@ -1,0 +1,35 @@
+---
+- name: Configuration post-déploiement Terraform.
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    project: demo-tf
+    app: nginx-unpriv
+
+  tasks:
+    - name: 1. En attente de la fin du déploiement Terraform...
+      ansible.builtin.command:
+        oc -n {{ project }} rollout status deployment/{{ app }} --timeout=180s
+
+    - name: 2. Vérification si la route existe déjà.
+      ansible.builtin.command:
+        oc -n {{ project }} get route/{{ app }}
+      register: route_check
+      failed_when: false
+      changed_when: false
+
+    - name: 3. Création de la route si elle n'existe pas.
+      ansible.builtin.command:
+        oc -n {{ project }} expose service/{{ app }} --name={{ app }}
+      when: route_check.rc != 0
+
+    - name: 4. Obtention de l'URL.
+      ansible.builtin.command:
+        oc -n {{ project }} get route/{{ app }} -o jsonpath='http://{.spec.host}'
+      register: route_URL
+
+    - name: 5. Affichage de l'URL.
+      ansible.builtin.debug:
+        msg: "L'URL pour accéder à l'application est {{ route_URL.stdout }}"
