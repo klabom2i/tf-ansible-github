@@ -6,7 +6,7 @@
 
   vars:
     project: demo-tf
-    app: nginx-unpriv
+    app: apache-unpriv
 
   tasks:
     - name: 1. En attente de la fin du déploiement Terraform...
